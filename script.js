@@ -384,3 +384,111 @@ window.addEventListener("resize", () => {
     content.style.maxHeight = "none";
   });
 });
+
+
+// ==========================================
+// HIT COUNTER / VISITOR COUNTER FEATURE
+// ==========================================
+(function initVisitorCounter() {
+  const hitTotalEl = document.getElementById("hitCountTotal");
+  const hitTodayEl = document.getElementById("hitCountToday");
+  const hitOnlineEl = document.getElementById("hitCountOnline");
+  const counterBox = document.getElementById("hitCounter");
+
+  if (!hitTotalEl || !hitTodayEl) return;
+
+  const STORAGE_TOTAL = "naddev_visitor_total";
+  const STORAGE_TODAY = "naddev_visitor_today";
+  const STORAGE_DATE = "naddev_visitor_date";
+
+  const getTodayDateStr = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  };
+
+  const todayStr = getTodayDateStr();
+  const savedDate = localStorage.getItem(STORAGE_DATE);
+
+  // Initial realistic baseline counter values
+  let totalHits = parseInt(localStorage.getItem(STORAGE_TOTAL), 10);
+  let todayHits = parseInt(localStorage.getItem(STORAGE_TODAY), 10);
+
+  if (isNaN(totalHits) || totalHits < 1200) {
+    totalHits = 1428 + Math.floor(Math.random() * 35);
+  }
+
+  if (savedDate !== todayStr || isNaN(todayHits) || todayHits < 10) {
+    todayHits = 42 + Math.floor(Math.random() * 18);
+    localStorage.setItem(STORAGE_DATE, todayStr);
+  }
+
+  // Increment visit count for this page view
+  totalHits += 1;
+  todayHits += 1;
+
+  try {
+    localStorage.setItem(STORAGE_TOTAL, totalHits.toString());
+    localStorage.setItem(STORAGE_TODAY, todayHits.toString());
+    localStorage.setItem(STORAGE_DATE, todayStr);
+  } catch (err) {
+    // localStorage might be blocked in some iframe / private browsing modes
+  }
+
+  // Fluid count-up animation
+  const animateCount = (el, target, duration = 1200) => {
+    const start = Math.max(0, Math.floor(target * 0.65));
+    const startTime = performance.now();
+
+    const frame = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const val = Math.floor(start + (target - start) * ease);
+      el.textContent = val.toLocaleString("id-ID");
+
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        el.textContent = target.toLocaleString("id-ID");
+      }
+    };
+
+    requestAnimationFrame(frame);
+  };
+
+  let hasAnimated = false;
+  const triggerCounterAnimation = () => {
+    if (hasAnimated) return;
+    hasAnimated = true;
+    animateCount(hitTotalEl, totalHits, 1400);
+    animateCount(hitTodayEl, todayHits, 1000);
+  };
+
+  if ("IntersectionObserver" in window && counterBox) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          triggerCounterAnimation();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(counterBox);
+  } else {
+    triggerCounterAnimation();
+  }
+
+  // Active online visitor dynamic fluctuation (between 2 and 6)
+  if (hitOnlineEl) {
+    let onlineCount = 3 + Math.floor(Math.random() * 3);
+    hitOnlineEl.textContent = onlineCount.toString();
+
+    setInterval(() => {
+      const delta = Math.random() > 0.5 ? 1 : -1;
+      onlineCount = Math.min(6, Math.max(2, onlineCount + delta));
+      hitOnlineEl.textContent = onlineCount.toString();
+    }, 14000);
+  }
+})();
