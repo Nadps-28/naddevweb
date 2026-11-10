@@ -2322,6 +2322,26 @@ footer {
   gap: 2px;
 }
 
+.hit-counter-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hit-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #059669;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
 .hit-counter-label {
   font-family: "Sora", sans-serif;
   font-weight: 700;

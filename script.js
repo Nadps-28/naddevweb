@@ -385,64 +385,45 @@ window.addEventListener("resize", () => {
   });
 });
 
-
 // ==========================================
-// HIT COUNTER / VISITOR COUNTER FEATURE
+// REAL-TIME VISITOR COUNTER (LIVE GLOBAL)
 // ==========================================
 (function initVisitorCounter() {
   const hitTotalEl = document.getElementById("hitCountTotal");
   const hitTodayEl = document.getElementById("hitCountToday");
-  const hitOnlineEl = document.getElementById("hitCountOnline");
-  const counterBox = document.getElementById("hitCounter");
-
   if (!hitTotalEl || !hitTodayEl) return;
-
-  const STORAGE_TOTAL = "naddev_visitor_total";
-  const STORAGE_TODAY = "naddev_visitor_today";
-  const STORAGE_DATE = "naddev_visitor_date";
 
   const getTodayDateStr = () => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    return `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, "0")}_${String(now.getDate()).padStart(2, "0")}`;
   };
 
   const todayStr = getTodayDateStr();
-  const savedDate = localStorage.getItem(STORAGE_DATE);
+  const KEY_TOTAL = "naddev_official_real_views";
+  const KEY_TODAY = `naddev_official_real_views_${todayStr}`;
+  const API_BASE = "https://countapi.mileshilliard.com/api/v1";
 
-  // Initial realistic baseline counter values
-  let totalHits = parseInt(localStorage.getItem(STORAGE_TOTAL), 10);
-  let todayHits = parseInt(localStorage.getItem(STORAGE_TODAY), 10);
+  // Baca cache lokal sementara jika ada, default murni 0
+  const cachedTotal = parseInt(localStorage.getItem("naddev_cache_total"), 10) || 0;
+  const cachedToday = parseInt(localStorage.getItem("naddev_cache_today"), 10) || 0;
+  const cachedDate = localStorage.getItem("naddev_cache_date");
 
-  if (isNaN(totalHits) || totalHits < 1200) {
-    totalHits = 1428 + Math.floor(Math.random() * 35);
-  }
+  hitTotalEl.textContent = cachedTotal.toLocaleString("id-ID");
+  hitTodayEl.textContent = (cachedDate === todayStr ? cachedToday : 0).toLocaleString("id-ID");
 
-  if (savedDate !== todayStr || isNaN(todayHits) || todayHits < 10) {
-    todayHits = 42 + Math.floor(Math.random() * 18);
-    localStorage.setItem(STORAGE_DATE, todayStr);
-  }
-
-  // Increment visit count for this page view
-  totalHits += 1;
-  todayHits += 1;
-
-  try {
-    localStorage.setItem(STORAGE_TOTAL, totalHits.toString());
-    localStorage.setItem(STORAGE_TODAY, todayHits.toString());
-    localStorage.setItem(STORAGE_DATE, todayStr);
-  } catch (err) {
-    // localStorage might be blocked in some iframe / private browsing modes
-  }
-
-  // Fluid count-up animation
-  const animateCount = (el, target, duration = 1200) => {
-    const start = Math.max(0, Math.floor(target * 0.65));
+  // Animasi count-up angka halus
+  const animateCount = (el, target, duration = 800) => {
+    const current = parseInt(el.textContent.replace(/\./g, ""), 10) || 0;
+    if (current === target) {
+      el.textContent = target.toLocaleString("id-ID");
+      return;
+    }
+    const start = current;
     const startTime = performance.now();
 
     const frame = (now) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - progress, 3);
       const val = Math.floor(start + (target - start) * ease);
       el.textContent = val.toLocaleString("id-ID");
@@ -457,38 +438,34 @@ window.addEventListener("resize", () => {
     requestAnimationFrame(frame);
   };
 
-  let hasAnimated = false;
-  const triggerCounterAnimation = () => {
-    if (hasAnimated) return;
-    hasAnimated = true;
-    animateCount(hitTotalEl, totalHits, 1400);
-    animateCount(hitTodayEl, todayHits, 1000);
+  // Hit ke server API riil
+  const trackVisit = async () => {
+    try {
+      const [resTotal, resToday] = await Promise.all([
+        fetch(`${API_BASE}/hit/${KEY_TOTAL}`),
+        fetch(`${API_BASE}/hit/${KEY_TODAY}`)
+      ]);
+
+      if (resTotal.ok) {
+        const dataTotal = await resTotal.json();
+        if (dataTotal && typeof dataTotal.value === "number") {
+          animateCount(hitTotalEl, dataTotal.value);
+          localStorage.setItem("naddev_cache_total", dataTotal.value.toString());
+        }
+      }
+
+      if (resToday.ok) {
+        const dataToday = await resToday.json();
+        if (dataToday && typeof dataToday.value === "number") {
+          animateCount(hitTodayEl, dataToday.value);
+          localStorage.setItem("naddev_cache_today", dataToday.value.toString());
+          localStorage.setItem("naddev_cache_date", todayStr);
+        }
+      }
+    } catch (err) {
+      console.warn("Counter API offline:", err);
+    }
   };
 
-  if ("IntersectionObserver" in window && counterBox) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          triggerCounterAnimation();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(counterBox);
-  } else {
-    triggerCounterAnimation();
-  }
-
-  // Active online visitor dynamic fluctuation (between 2 and 6)
-  if (hitOnlineEl) {
-    let onlineCount = 3 + Math.floor(Math.random() * 3);
-    hitOnlineEl.textContent = onlineCount.toString();
-
-    setInterval(() => {
-      const delta = Math.random() > 0.5 ? 1 : -1;
-      onlineCount = Math.min(6, Math.max(2, onlineCount + delta));
-      hitOnlineEl.textContent = onlineCount.toString();
-    }, 14000);
-  }
+  trackVisit();
 })();
