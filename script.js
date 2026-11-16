@@ -11,13 +11,13 @@ const modalClose = document.getElementById("modalClose");
 const modalImage = document.getElementById("modalImage");
 
 const typingWords = [
-  "Landing Page",
-  "Website Bisnis",
-  "Company Profile",
-  "Website Toko Online",
-  "Website Portofolio",
-  "Website Iklan",
-  "Website Custom",
+  "Website Tour & Travel",
+  "Landing Page Paket Wisata",
+  "Website Open Trip",
+  "Website Rental & Sewa Mobil",
+  "Website Travel Umroh & Haji",
+  "Sistem Booking Wisata",
+  "Website Bisnis & Company Profile",
 ];
 
 if (mobileToggle && navLinks) {
