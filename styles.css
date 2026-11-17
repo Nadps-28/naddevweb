@@ -3163,3 +3163,43 @@ footer {
     border-radius: 16px;
   }
 }
+
+
+/* Contact Form Validation Styles */
+.form-group input.is-invalid,
+.form-group select.is-invalid,
+.form-group textarea.is-invalid {
+  border-color: #ef4444 !important;
+  background-color: #fffaf9 !important;
+  box-shadow: 0 0 0 3.5px rgba(239, 68, 68, 0.16) !important;
+  animation: form-field-shake 0.35s ease-in-out;
+}
+
+@keyframes form-field-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+/* Notiflix Custom Overrides */
+.notiflix-confirm {
+  box-shadow: 0 25px 60px rgba(20, 33, 43, 0.28) !important;
+}
+
+.notiflix-confirm-content {
+  line-height: 1.6 !important;
+}
+
+.notiflix-confirm-buttons a,
+.notiflix-confirm-buttons button {
+  font-family: "Manrope", sans-serif !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: transform 0.18s ease, filter 0.18s ease !important;
+}
+
+.notiflix-confirm-buttons a:hover,
+.notiflix-confirm-buttons button:hover {
+  filter: brightness(1.05) !important;
+  transform: translateY(-1px) !important;
+}

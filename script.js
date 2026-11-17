@@ -69,30 +69,224 @@ if (mobileToggle && navLinks) {
   });
 }
 
+// Initialize Notiflix Theme Config
+if (typeof Notiflix !== "undefined") {
+  Notiflix.Notify.init({
+    width: "320px",
+    position: "right-top",
+    distance: "18px",
+    borderRadius: "14px",
+    fontFamily: "Manrope, sans-serif",
+    fontSize: "13.5px",
+    cssAnimation: true,
+    cssAnimationDuration: 300,
+    cssAnimationStyle: "from-top",
+    useIcon: true,
+    warning: {
+      background: "#ff914d",
+      textColor: "#ffffff",
+      childClassName: "notiflix-notify-warning",
+      notiflixIconColor: "rgba(255,255,255,0.95)",
+    },
+    failure: {
+      background: "#ef4444",
+      textColor: "#ffffff",
+      childClassName: "notiflix-notify-failure",
+      notiflixIconColor: "rgba(255,255,255,0.95)",
+    },
+    success: {
+      background: "#10b981",
+      textColor: "#ffffff",
+      childClassName: "notiflix-notify-success",
+      notiflixIconColor: "rgba(255,255,255,0.95)",
+    },
+    info: {
+      background: "#547792",
+      textColor: "#ffffff",
+      childClassName: "notiflix-notify-info",
+      notiflixIconColor: "rgba(255,255,255,0.95)",
+    },
+  });
+
+  Notiflix.Confirm.init({
+    className: "notiflix-confirm",
+    width: "420px",
+    zindex: 4003,
+    position: "center",
+    distance: "12px",
+    backgroundColor: "#ffffff",
+    borderRadius: "24px",
+    backOverlay: true,
+    backOverlayColor: "rgba(20, 33, 43, 0.65)",
+    fontFamily: "Manrope, sans-serif",
+    cssAnimation: true,
+    cssAnimationDuration: 300,
+    cssAnimationStyle: "zoom",
+    plainText: false,
+    titleColor: "#14212b",
+    titleFontSize: "18px",
+    titleMaxLength: 60,
+    messageColor: "#667785",
+    messageFontSize: "14px",
+    messageMaxLength: 800,
+    buttonsFontSize: "14px",
+    buttonsBorderRadius: "12px",
+    okButtonColor: "#ffffff",
+    okButtonBackground: "#ff914d",
+    cancelButtonColor: "#547792",
+    cancelButtonBackground: "#edf3f6",
+  });
+
+  Notiflix.Loading.init({
+    className: "notiflix-loading",
+    zindex: 4000,
+    backgroundColor: "rgba(20, 33, 43, 0.7)",
+    svgColor: "#ff914d",
+    titleColor: "#ffffff",
+    fontFamily: "Manrope, sans-serif",
+    fontSize: "15px",
+  });
+}
+
 const contactForm = document.getElementById("contactForm");
 const formSuccess = document.getElementById("formSuccess");
 
 if (contactForm && formSuccess) {
+  const nameInput = contactForm.querySelector("#contactName");
+  const emailInput = contactForm.querySelector("#contactEmail");
+  const phoneInput = contactForm.querySelector("#contactPhone");
+  const serviceInput = contactForm.querySelector("#contactService");
+  const messageInput = contactForm.querySelector("#contactMessage");
+
+  // Remove invalid style on user input or change
+  [nameInput, emailInput, phoneInput, serviceInput, messageInput].forEach((input) => {
+    if (!input) return;
+    input.addEventListener("input", () => input.classList.remove("is-invalid"));
+    input.addEventListener("change", () => input.classList.remove("is-invalid"));
+  });
+
+  const showFieldError = (element, message) => {
+    element.classList.add("is-invalid");
+    element.focus();
+    if (typeof Notiflix !== "undefined" && Notiflix.Notify) {
+      Notiflix.Notify.failure(message);
+    } else {
+      alert(message);
+    }
+  };
+
   contactForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = contactForm.querySelector("#contactName").value.trim();
-    const message = contactForm.querySelector("#contactMessage").value.trim();
-    const phone = contactForm.querySelector("#contactPhone").value.trim();
-    const service = contactForm.querySelector("#contactService").value;
 
-    const waText = `Halo kak, saya ${name || "ingin bertanya"}.${
-      service ? ` Tertarik dengan ${service}.` : ""
-    }${message ? ` ${message}` : ""}`;
+    const name = nameInput ? nameInput.value.trim() : "";
+    const email = emailInput ? emailInput.value.trim() : "";
+    const phone = phoneInput ? phoneInput.value.trim() : "";
+    const service = serviceInput ? serviceInput.value.trim() : "";
+    const message = messageInput ? messageInput.value.trim() : "";
 
-    window.open(
-      `https://wa.me/6289674044681?text=${encodeURIComponent(waText)}`,
-      "_blank",
-      "noreferrer"
-    );
+    // 1. Validation: Name
+    if (!name) {
+      showFieldError(nameInput, "Harap isi nama lengkap Anda sebelum mengirim!");
+      return;
+    }
+    if (name.length < 2) {
+      showFieldError(nameInput, "Nama terlalu singkat, minimal 2 karakter.");
+      return;
+    }
 
-    formSuccess.classList.add("is-visible");
-    contactForm.reset();
-    setTimeout(() => formSuccess.classList.remove("is-visible"), 5000);
+    // 2. Validation: Email
+    if (!email) {
+      showFieldError(emailInput, "Harap masukkan alamat email Anda!");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showFieldError(emailInput, "Format email tidak valid (contoh: nama@email.com).");
+      return;
+    }
+
+    // 3. Validation: Phone (if filled, check valid phone format)
+    if (phone) {
+      const cleanPhone = phone.replace(/[\s\-\+]/g, "");
+      if (!/^\d{9,16}$/.test(cleanPhone)) {
+        showFieldError(phoneInput, "Format No. WhatsApp tidak valid (minimal 9 digit angka).");
+        return;
+      }
+    }
+
+    // 4. Validation: Service
+    if (!service) {
+      showFieldError(serviceInput, "Harap pilih paket atau layanan yang Anda minati!");
+      return;
+    }
+
+    // 5. Validation: Message
+    if (!message) {
+      showFieldError(messageInput, "Harap tuliskan pesan atau kebutuhan website Anda!");
+      return;
+    }
+    if (message.length < 5) {
+      showFieldError(messageInput, "Pesan terlalu singkat. Mohon jelaskan kebutuhan Anda secara ringkas.");
+      return;
+    }
+
+    // Prepare WhatsApp Message content
+    const sendToWhatsApp = () => {
+      if (typeof Notiflix !== "undefined" && Notiflix.Loading) {
+        Notiflix.Loading.standard("Mengarahkan ke WhatsApp...");
+      }
+
+      const waLines = [
+        `Halo NadDev, saya ${name}.`,
+        `Email: ${email}`,
+        phone ? `No. WhatsApp: ${phone}` : null,
+        `Layanan: ${service}`,
+        `\nPesan:\n${message}`,
+      ].filter(Boolean);
+
+      const waText = waLines.join("\n");
+
+      setTimeout(() => {
+        if (typeof Notiflix !== "undefined" && Notiflix.Loading) {
+          Notiflix.Loading.remove();
+        }
+        window.open(
+          `https://wa.me/6289674044681?text=${encodeURIComponent(waText)}`,
+          "_blank",
+          "noreferrer"
+        );
+        if (typeof Notiflix !== "undefined" && Notiflix.Notify) {
+          Notiflix.Notify.success("Berhasil! Menghubungkan Anda ke WhatsApp NadDev...");
+        }
+        contactForm.reset();
+        [nameInput, emailInput, phoneInput, serviceInput, messageInput].forEach((i) => {
+          if (i) i.classList.remove("is-invalid");
+        });
+        formSuccess.classList.add("is-visible");
+        setTimeout(() => formSuccess.classList.remove("is-visible"), 6000);
+      }, 500);
+    };
+
+    // Show Notiflix Alert Confirmation Before Sending
+    if (typeof Notiflix !== "undefined" && Notiflix.Confirm) {
+      Notiflix.Confirm.show(
+        "Konfirmasi Kirim Pesan",
+        `Halo <strong>${name}</strong>!<br><br>Data formulir Anda sudah lengkap dan tervalidasi.<br><strong>Layanan:</strong> ${service}<br><br>Apakah Anda ingin langsung terhubung ke WhatsApp resmi NadDev untuk konsultasi?`,
+        "Ya, Kirim ke WhatsApp",
+        "Periksa Kembali",
+        () => {
+          sendToWhatsApp();
+        },
+        () => {
+          if (typeof Notiflix !== "undefined" && Notiflix.Notify) {
+            Notiflix.Notify.info("Pengiriman ditunda. Anda dapat meninjau kembali pesan Anda.");
+          }
+        },
+        { plainText: false }
+      );
+    } else {
+      sendToWhatsApp();
+    }
   });
 }
 
