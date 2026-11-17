@@ -19,16 +19,13 @@
   --cta-bg-image: url("assets/images/bg-cta.webp");
 }
 
-*,
-*::before,
-*::after {
+* {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
-  max-width: 100%;
 }
 
 body {
@@ -36,9 +33,6 @@ body {
   font-family: "Manrope", sans-serif;
   color: var(--ink);
   overflow-x: hidden;
-  max-width: 100%;
-  width: 100%;
-  position: relative;
   background:
     radial-gradient(
       circle at top left,
@@ -1827,7 +1821,7 @@ p {
 .cta-box::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -3%;
   background:
     radial-gradient(
       circle at 82% 18%,
@@ -2160,9 +2154,6 @@ a.contact-value:hover {
   flex-direction: column;
   gap: 7px;
   margin-bottom: 16px;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
 }
 
 .form-row {
@@ -2180,10 +2171,6 @@ a.contact-value:hover {
 .form-group input,
 .form-group select,
 .form-group textarea {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
   padding: 13px 16px;
   border-radius: 14px;
   border: 1.5px solid rgba(84, 119, 146, 0.18);
@@ -2872,27 +2859,7 @@ footer {
   }
 }
 
-@media (max-width: 860px) {
-  .portfolio-image {
-    transform: none !important;
-    animation: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-  .portfolio-preview {
-    overflow: hidden !important;
-  }
-  .portfolio-simple-card {
-    overflow: hidden !important;
-    max-width: 100% !important;
-  }
-}
-
 @media (max-width: 560px) {
-  .portfolio-image {
-    transform: none !important;
-    animation: none !important;
-  }
   .hero::before {
     background: var(--hero-bg-image) center center / cover no-repeat;
   }
@@ -3237,127 +3204,4 @@ footer {
 .notiflix-confirm-buttons button:hover {
   filter: brightness(1.05) !important;
   transform: translateY(-1px) !important;
-}
-
-/* Mobile Overflow Elimination & Robust Responsive Rules */
-p,
-span,
-a,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-li,
-details,
-summary,
-label {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-}
-
-img,
-svg,
-video,
-iframe,
-canvas {
-  max-width: 100%;
-}
-
-.container,
-.hero-grid,
-.why-clean-grid,
-.grid-4,
-.grid-3,
-.portfolio-grid,
-.pricing-grid,
-.faq-grid,
-.contact-grid {
-  width: 100%;
-  max-width: 100%;
-}
-
-.grid-4 > *,
-.grid-3 > *,
-.portfolio-grid > *,
-.pricing-grid > *,
-.faq-grid > *,
-.contact-grid > * {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.contact-info,
-.contact-info-block,
-.contact-socmed-block,
-.contact-form-wrap,
-.contact-form {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.form-group select {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.socmed-list {
-  width: 100%;
-  max-width: 100%;
-}
-
-.socmed-item {
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.socmed-item span {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.promo-badge-pill {
-  max-width: 100%;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.4;
-}
-
-.footer-counter-shell,
-.hit-counter {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-@media (max-width: 560px) {
-  .nav-links {
-    width: calc(100% - 24px) !important;
-    max-width: 440px !important;
-    margin: 0 auto !important;
-  }
-
-  .portfolio-actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .portfolio-actions .portfolio-link {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .socmed-list {
-    grid-template-columns: repeat(auto-fit, minmax(54px, 1fr)) !important;
-    gap: 8px !important;
-  }
 }
